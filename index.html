@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="id" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Form Pengajuan MEMO</title>
+  
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  
+  <!-- Libraries -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      --glass-bg: rgba(30, 41, 59, 0.7);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --text-muted: #94a3b8;
+    }
+
+    [data-bs-theme="light"] {
+      --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      --glass-bg: rgba(255, 255, 255, 0.8);
+      --glass-border: rgba(0, 0, 0, 0.1);
+      --text-muted: #64748b;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg-gradient);
+      background-attachment: fixed;
+      min-height: 100vh;
+      color: var(--bs-body-color);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 0.9rem;
+    }
+
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .header-gradient {
+      background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+      padding: 40px 20px;
+      text-align: center;
+      color: white;
+    }
+
+    .form-section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--primary);
+      margin: 25px 0 15px;
+      display: flex;
+      align-items: center;
+    }
+
+    .form-section-title::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--glass-border);
+      margin-left: 15px;
+    }
+
+    .form-control, .form-select, .ts-wrapper .ts-control {
+      background: rgba(255, 255, 255, 0.05) !important;
+      border: 1px solid var(--glass-border) !important;
+      border-radius: 12px !important;
+      padding: 10px 15px !important;
+      color: inherit !important;
+      transition: all 0.2s;
+    }
+
+    [data-bs-theme="light"] .form-control, [data-bs-theme="light"] .form-select {
+      background: rgba(0, 0, 0, 0.02) !important;
+    }
+
+    .form-control:focus, .ts-wrapper.focus .ts-control {
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1) !important;
+    }
+
+    .btn-submit {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      border: none;
+      border-radius: 14px;
+      padding: 16px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      transition: all 0.3s;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-submit:active { transform: translateY(0); }
+
+    .theme-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(5px);
+    }
+
+    #login-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--bg-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .user-badge {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      margin-top: 10px;
+    }
+
+    .loading-spinner {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      color: white;
+      backdrop-filter: blur(8px);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loading State -->
+  <div id="loader" class="loading-spinner">
+    <div class="spinner-grow text-primary mb-3" role="status"></div>
+    <div class="fw-bold h5">Memproses Data...</div>
+    <div class="small text-white-50">Mohon tunggu sebentar</div>
+  </div>
+
+  <!-- Login Overlay -->
+  <div id="login-overlay">
+    <div class="mb-4">
+      <div class="display-5 fw-bold mb-2">Form Pengajuan Memo</div>
+      <div class="text-muted">Gunakan akun Google Anda untuk melanjutkan</div>
+    </div>
+    <div id="g_id_onload"
+         data-client_id="556004279063-apavopu04dm6bdgoim9a1rhg660p9m9r.apps.googleusercontent.com"
+         data-context="signin"
+         data-ux_mode="popup"
+         data-callback="handleCredentialResponse"
+         data-auto_prompt="false">
+    </div>
+    <div class="g_id_signin"
+         data-type="standard"
+         data-shape="pill"
+         data-theme="filled_blue"
+         data-text="signin_with"
+         data-size="large"
+         data-logo_alignment="left">
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container py-5" id="main-content" style="max-width: 800px; display: none;">
+    <div class="glass-card">
+      <div class="header-gradient position-relative">
+        <button class="theme-toggle" id="themeToggle">
+          <span class="material-icons-round" id="themeIcon">light_mode</span>
+        </button>
+        <h2 class="fw-bold mb-2">Form Pengajuan Memo</h2>
+        <div class="user-badge">
+          <span class="material-icons-round fs-6 me-2">account_circle</span>
+          <span id="userName">---</span>
+        </div>
+      </div>
+
+      <div class="p-4 p-md-5">
+        <form id="memoForm">
+          <!-- Hidden inputs for SSO data -->
+          <input type="hidden" name="userEmail" id="inputEmail">
+          <input type="hidden" name="userName" id="inputName">
+
+          <div class="form-section-title">Informasi Pengajuan</div>
+          <div class="row g-4">
+            <div class="col-md-6">
+              <label class="form-label fw-600">Jenis Permintaan</label>
+              <select id="jenisPermintaan" name="jenisPermintaan" required></select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Ditujukan Ke</label>
+              <select id="ditujukan" name="ditujukan" required></select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Jenis Memo</label>
+              <select id="jenisMemo" name="jenisMemo" required></select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Cara Pembayaran</label>
+              <select id="pembayaran" name="pembayaran" required></select>
+            </div>
+          </div>
+
+          <div class="form-section-title">Entitas & Klien</div>
+          <div class="row g-4">
+            <div class="col-md-4">
+              <label class="form-label fw-600">SBU</label>
+              <select id="sbu" name="sbu" required></select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-600">Perusahaan</label>
+              <select id="perusahaan" name="perusahaan" required></select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-600">Nama Klien</label>
+              <input type="text" name="klien" class="form-control" placeholder="Masukkan nama klien..." required>
+            </div>
+          </div>
+
+          <div class="form-section-title">Biaya & Timeline</div>
+          <div class="row g-4">
+            <div class="col-md-6">
+              <label class="form-label fw-600">Jumlah Karyawan</label>
+              <input type="number" name="jumlahKaryawan" class="form-control" placeholder="0" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-600">Estimasi Biaya (Rp)</label>
+              <input type="text" id="estimasiBiaya" name="estimasiBiaya" class="form-control" placeholder="0" required>
+            </div>
+            <div class="col-6 col-md-4">
+              <label class="form-label small fw-bold">Est. Masuk HRIS</label>
+              <input type="date" name="tglHris" class="form-control" required>
+            </div>
+            <div class="col-6 col-md-4">
+              <label class="form-label small fw-bold">Tgl Pengiriman</label>
+              <input type="date" name="tglKirim" class="form-control" required>
+            </div>
+            <div class="col-6 col-md-4">
+              <label class="form-label small fw-bold">Tgl Pembayaran</label>
+              <input type="date" name="tglBayar" class="form-control" required>
+            </div>
+            <div class="col-6 col-md-6">
+              <label class="form-label small fw-bold">Tgl Penyelesaian</label>
+              <input type="date" name="tglSelesai" class="form-control" required>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label small fw-bold">Tgl Meeting dengan User</label>
+              <input type="date" name="tglMeeting" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="form-section-title">Lampiran & Ringkasan</div>
+          <div class="mb-4">
+            <label class="form-label fw-600">Perihal</label>
+            <input type="text" name="perihal" class="form-control" placeholder="Ringkasan pengajuan..." required>
+          </div>
+          <div class="mb-4">
+            <label class="form-label fw-600">Deskripsi Tambahan</label>
+            <textarea name="deskripsi" class="form-control" rows="3" placeholder="Detail pengajuan (opsional)..."></textarea>
+          </div>
+          <div class="mb-5">
+            <label class="form-label fw-600 d-flex justify-content-between">
+              <span>Lampiran (Attachment)</span>
+              <small class="text-muted">Maks. 10MB</small>
+            </label>
+            <input type="file" id="attachment" class="form-control">
+            <div id="fileInfo" class="small mt-2 text-muted">Format file bebas (PDF, Image, Spreadsheet, etc.)</div>
+          </div>
+
+          <button type="submit" id="btnSubmit" class="btn btn-primary w-100 btn-submit text-white shadow">
+            KIRIM PENGAJUAN SEKARANG
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    // --- KONFIGURASI ---
+    const CONFIG = {
+      // GANTI DENGAN URL WEB APP GAS HASIL DEPLOY "ANYONE"
+      API_URL: "https://script.google.com/macros/s/AKfycbyIC7qY0XnVETFgAsxzlXYES4_371VzyN92QOCBW0nyYDKWKSLVXtuYqzTSxBe4fiUD/exec",
+      CACHE_DURATION: 1000 * 60 * 30 // 30 Menit
+    };
+
+    let selects = {};
+    const htmlEl = document.documentElement;
+
+    // Theme Logic
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const target = htmlEl.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+      htmlEl.setAttribute('data-bs-theme', target);
+      document.getElementById('themeIcon').innerText = target === 'dark' ? 'light_mode' : 'dark_mode';
+    });
+
+    // SSO Interaction
+    function parseJwt(token) {
+      var base64Url = token.split('.')[1];
+      var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload);
+    }
+
+    function handleCredentialResponse(response) {
+      const payload = parseJwt(response.credential);
+      
+      document.getElementById('login-overlay').style.opacity = '0';
+      setTimeout(() => {
+        document.getElementById('login-overlay').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        
+        document.getElementById('userName').innerText = payload.name;
+        document.getElementById('inputEmail').value = payload.email;
+        document.getElementById('inputName').value = payload.name;
+        
+        // Load data setelah login
+        fetchDropdownData();
+      }, 500);
+    }
+
+    // Fetch Data from GAS
+    async function fetchDropdownData() {
+      const cache = localStorage.getItem('memo_cache');
+      const cacheTime = localStorage.getItem('memo_cache_time');
+      const now = Date.now();
+
+      if (cache && cacheTime && (now - cacheTime < CONFIG.CACHE_DURATION)) {
+        initDropdowns(JSON.parse(cache));
+        return;
+      }
+
+      try {
+        const response = await fetch(`${CONFIG.API_URL}?action=getDropdown`);
+        const data = await response.json();
+        localStorage.setItem('memo_cache', JSON.stringify(data));
+        localStorage.setItem('memo_cache_time', now);
+        initDropdowns(data);
+      } catch (err) {
+        console.error("Gagal mengambil data dropdown:", err);
+      }
+    }
+
+    function initDropdowns(data) {
+      ['jenisPermintaan', 'ditujukan', 'jenisMemo', 'pembayaran', 'sbu', 'perusahaan'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el.options.length === 0) {
+          el.add(new Option("", ""));
+          data[id].forEach(i => el.add(new Option(i, i)));
+          selects[id] = new TomSelect("#" + id, { 
+            create: false, 
+            placeholder: 'Pilih...', 
+            allowEmptyOption: true,
+            dropdownParent: 'body'
+          });
+          selects[id].clear();
+        }
+      });
+    }
+
+    // Currency Formatting
+    document.getElementById('estimasiBiaya').addEventListener('input', e => {
+      let v = e.target.value.replace(/\D/g, "");
+      e.target.value = v.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    });
+
+    // Form Submission
+    document.getElementById('memoForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const fileInput = document.getElementById('attachment');
+      if (fileInput.files.length > 0 && fileInput.files[0].size > 10485760) {
+        Swal.fire("Oops!", "Ukuran lampiran maksimal 10MB", "warning");
+        return;
+      }
+
+      document.getElementById('loader').style.display = 'flex';
+      
+      const formObj = {};
+      new FormData(this).forEach((v, k) => formObj[k] = v);
+
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          formObj.attachment = { 
+            content: e.target.result.split(',')[1], 
+            mimeType: file.type, 
+            name: file.name 
+          };
+          await postData(formObj);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        await postData(formObj);
+      }
+    });
+
+    async function postData(data) {
+      try {
+        const response = await fetch(CONFIG.API_URL, {
+          method: 'POST',
+          body: JSON.stringify(data)
+        });
+        const res = await response.json();
+        
+        document.getElementById('loader').style.display = 'none';
+
+        if (res.status === "success") {
+          Swal.fire({
+            title: "Berhasil!",
+            text: res.message,
+            icon: "success",
+            confirmButtonText: "Selesai"
+          }).then(() => {
+            document.getElementById('memoForm').reset();
+            Object.values(selects).forEach(s => s.clear());
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+        } else {
+          throw new Error(res.message);
+        }
+      } catch (err) {
+        document.getElementById('loader').style.display = 'none';
+        Swal.fire("Gagal!", err.message, "error");
+      }
+    }
+  </script>
+</body>
+</html>
